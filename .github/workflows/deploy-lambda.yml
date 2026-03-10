@@ -31,6 +31,7 @@ jobs:
             -w /app \
             python:3.14-slim \
             sh -c "
+              apt-get update && apt-get install -y zip && apt-get clean
               pip install --no-cache-dir -r requirements.txt -t package/
               cp -r src/* package/
               cd package && zip -r ../ai-agent-miraflores.zip . && cd ..
