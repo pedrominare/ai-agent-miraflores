@@ -28,7 +28,7 @@ def lambda_handler(event, context):
 
     # Exemplo de resposta
     resultado = {
-        "status": "ok",
+        "status": "ok, um grande peru",
         "mensagem": "Lambda funcionando",
         "body_recebido": body,
     }
