@@ -1,0 +1,51 @@
+# =============================================================================
+# Workflow: Deploy Lambda via GitHub Actions
+# - Usa OIDC (sem Access Keys)
+# - Instala dependências em Docker (Python 3.14)
+# - Código na pasta src/
+# - Ajuste: NOME-DA-SUA-FUNCAO, aws-region, branches
+# =============================================================================
+
+name: Deploy Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar dependências e criar pacote (Docker)
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/app" \
+            -w /app \
+            python:3.14-slim \
+            sh -c "
+              pip install --no-cache-dir -r requirements.txt -t package/
+              cp -r src/* package/
+              cd package && zip -r ../ai-agent-miraflores.zip . && cd ..
+            "
+
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - name: Deploy no Lambda
+        run: |
+          aws lambda update-function-code \
+            --function-name ai-agent-miraflores \
+            --zip-file fileb://ai-agent-miraflores.zip
+
+# =============================================================================
