@@ -1,8 +1,22 @@
 # =============================================================================
 # Handler principal do Lambda - padrão lambda_function.lambda_handler
-# Chamado via Function URL (HTTP) - suporta GET e POST
+# FastAPI + Mangum: converte evento Lambda (Function URL) em requisições ASGI
 # =============================================================================
 
+from mangum import Mangum
+from src.app import app
+
+# Mangum adapta o evento do Lambda para o FastAPI
+# AWS Lambda invoca lambda_handler(event, context)
+lambda_handler = Mangum(app)
+
+# =============================================================================
+
+# =============================================================================
+# Handler principal do Lambda - padrão lambda_function.lambda_handler
+# Chamado via Function URL (HTTP) - suporta GET e POST
+# =============================================================================
+'''
 import json
 
 
@@ -69,3 +83,4 @@ def _parse_body(event):
         return {"raw": body_raw}
 
 # =============================================================================
+'''
